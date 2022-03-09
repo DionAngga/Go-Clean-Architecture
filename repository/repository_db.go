@@ -2,22 +2,75 @@ package repository
 
 import (
 	"crud/entity"
-	"fmt"
 
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-var err error
+type Repository interface {
+	Get(user *[]entity.User) (*[]entity.User, error)
+	GetId(user *entity.User, id string) (*entity.User, error)
+	Create(user *entity.User) (*entity.User, error)
+	Update(user *entity.User) (*entity.User, error)
+	Delete(user *entity.User, id string) (*entity.User, error)
+	GetByEmail(email string) (*entity.User, error)
+}
 
-const DNS = "root:mysql123@tcp(localhost:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
+type repository struct {
+	DB *gorm.DB
+}
 
-func InitialMigration() {
-	DB, err = gorm.Open(mysql.Open(DNS), &gorm.Config{})
+func NewRepository(db *gorm.DB) *repository {
+	return &repository{db}
+}
+
+const DNS = "root:@tcp(localhost:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
+
+func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
+	err := db.DB.Find(&user).Error
 	if err != nil {
-		fmt.Println(err.Error())
-		panic("cannot connect to DB")
+		return nil, err
 	}
-	DB.AutoMigrate(&entity.User{})
+	return user, nil
+}
+
+func (db *repository) GetId(user *entity.User, id string) (*entity.User, error) {
+	err := db.DB.Find(user, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (db *repository) Create(user *entity.User) (*entity.User, error) {
+	err := db.DB.Create(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (db *repository) Update(user *entity.User) (*entity.User, error) {
+	err := db.DB.Save(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (db *repository) Delete(user *entity.User, id string) (*entity.User, error) {
+	err := db.DB.Delete(user, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (db *repository) GetByEmail(email string) (*entity.User, error) {
+	var user entity.User
+	err := db.DB.Where("email = ?", email).Find(&user).Error
+	if err != nil {
+		return &user, err
+	}
+
+	return &user, nil
 }
