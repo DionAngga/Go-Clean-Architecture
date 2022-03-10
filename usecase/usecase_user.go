@@ -1,7 +1,8 @@
 package usecase
 
 import (
-	"crud/entity"
+	entity "crud/entity/requests"
+	"crud/entity/responses"
 	"crud/repository"
 	"fmt"
 
@@ -10,10 +11,10 @@ import (
 
 type Usecase interface {
 	CreateUser(user *entity.User) *entity.User
-	//Login(user *entity.User) (*entity.User, error)
+	Login(user entity.Login) *responses.UserRespon
 	FindUser(user *entity.User, id string) (*entity.User, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
-	FindUserByEmail(user *entity.User) (*entity.User, error)
+	FindUserByEmail(user *entity.Login) *responses.UserRespon
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(user *entity.User, id string) (*entity.User, error)
 }
@@ -40,26 +41,6 @@ func (u *usecase) CreateUser(user *entity.User) *entity.User {
 
 	return NewUser
 }
-
-// func (u *usecase) Login(user *entity.User) (*entity.User, error) {
-// 	input := user
-// 	input.Email = user.Email
-// 	input.Password = user.Password
-
-// 	user, err := u.repository.GetByEmail(input.Email)
-// 	if err != nil {
-// 		return user, err
-// 	}
-// 	if user.ID == 0 {
-// 		return user, errors.New("user not found")
-// 	}
-
-// 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
-// 	if err != nil {
-// 		return user, err
-// 	}
-// 	return user, nil
-// }
 
 func (u *usecase) FindUser(user *entity.User, id string) (*entity.User, error) {
 	User, err := u.repository.GetId(user, id)
@@ -93,11 +74,42 @@ func (u *usecase) DeleteUser(user *entity.User, id string) (*entity.User, error)
 	return User, nil
 }
 
-func (u *usecase) FindUserByEmail(user *entity.User) (*entity.User, error) {
+func (u *usecase) FindUserByEmail(user *entity.Login) *responses.UserRespon {
 	email := user.Email
 	User, err := u.repository.GetByEmail(email)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return User, nil
+	resp := responses.UserRespon{}
+	resp.ID = User.ID
+	resp.CreatedAt = User.CreatedAt
+	resp.UpdatedAt = User.UpdatedAt
+	resp.DeletedAt = User.DeletedAt
+	resp.Name = User.Name
+	resp.Age = User.Age
+	resp.Nasabah = User.Nasabah
+	return &resp
+}
+
+func (u *usecase) Login(user entity.Login) *responses.UserRespon {
+	input := user
+	input.Email = user.Email
+	input.Password = user.Password
+
+	newuser, err := u.repository.GetByEmail(input.Email)
+	err = bcrypt.CompareHashAndPassword([]byte(newuser.Password), []byte(input.Password))
+	if err != nil {
+		resp := responses.UserRespon{}
+		return &resp
+	} else {
+		resp := responses.UserRespon{}
+		resp.ID = newuser.ID
+		resp.CreatedAt = newuser.CreatedAt
+		resp.UpdatedAt = newuser.UpdatedAt
+		resp.DeletedAt = newuser.DeletedAt
+		resp.Name = newuser.Name
+		resp.Age = newuser.Age
+		resp.Nasabah = newuser.Nasabah
+		return &resp
+	}
 }

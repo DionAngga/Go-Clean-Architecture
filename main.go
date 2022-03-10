@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"crud/controller"
-	"crud/entity"
+	entity "crud/entity/requests"
 	"crud/repository"
 	"crud/usecase"
 	"fmt"
@@ -39,7 +39,7 @@ func initializeRouter() {
 	r.HandleFunc("/user/{id}", userController.GetUser).Methods("GET")
 	r.HandleFunc("/user", userController.CreateUser).Methods("POST")
 	r.HandleFunc("/userEmail", userController.GetEmailUser).Methods("POST")
-	//r.HandleFunc("/userlogin", userController.LoginUser).Methods("POST")
+	r.HandleFunc("/userlogin", userController.LoginUser).Methods("POST")
 	r.HandleFunc("/user/{id}", userController.UpdateUser).Methods("PUT")
 	r.HandleFunc("/user/{id}", userController.DeleteUser).Methods("DELETE")
 

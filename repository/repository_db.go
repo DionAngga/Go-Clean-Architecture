@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"crud/entity"
+	entity "crud/entity/requests"
 
 	"gorm.io/gorm"
 )
