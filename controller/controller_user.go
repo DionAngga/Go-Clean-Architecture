@@ -37,8 +37,8 @@ func (u *controller) GetUsers(w http.ResponseWriter, r *http.Request) {
 	var users []entity.User
 	Users, err := u.usecase.FindAllUser(&users)
 	if err != nil {
-		resp := responses.Response{Status: http.StatusNotFound, Message: "Email atau password salah", Result: map[string]interface{}{"data": nil}}
-		json.NewEncoder(w).Encode(resp)
+		respon := responses.Response{Status: http.StatusNotFound, Message: "Email atau password salah", Result: map[string]interface{}{"data": nil}}
+		json.NewEncoder(w).Encode(respon)
 	}
 	var newuser []responses.UserRespon
 	for _, user := range *Users {
@@ -51,16 +51,28 @@ func (u *controller) GetUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		newuser = append(newuser, resps)
 	}
-	resp := responses.Response{Status: http.StatusOK, Message: "Data User Ditemukan", Result: map[string]interface{}{"data": newuser}}
-	json.NewEncoder(w).Encode(resp)
+	respon := responses.Response{Status: http.StatusOK, Message: "Data User Ditemukan", Result: map[string]interface{}{"data": newuser}}
+	json.NewEncoder(w).Encode(respon)
 }
 
 func (u *controller) GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user entity.User
-	u.usecase.FindUser(&user, params["id"])
-	json.NewEncoder(w).Encode(user)
+	User, err := u.usecase.FindUser(&user, params["id"])
+	if err != nil {
+		respon := responses.Response{Status: http.StatusNotFound, Message: "user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
+		json.NewEncoder(w).Encode(respon)
+	} else {
+		var newuser responses.UserRespon
+		newuser.Model = User.Model
+		newuser.Nasabah = User.Nasabah
+		newuser.Age = User.Age
+		newuser.Name = User.Name
+		newuser.Email = User.Email
+		respon := responses.Response{Status: http.StatusFound, Message: "user ditemukan", Result: map[string]interface{}{"data": newuser}}
+		json.NewEncoder(w).Encode(respon)
+	}
 }
 
 func (u *controller) CreateUser(w http.ResponseWriter, r *http.Request) {
