@@ -88,6 +88,7 @@ func (u *usecase) FindUserByEmail(user *entity.Login) *responses.UserRespon {
 	resp.Name = User.Name
 	resp.Age = User.Age
 	resp.Nasabah = User.Nasabah
+	resp.Email = User.Email
 	return &resp
 }
 
@@ -97,8 +98,8 @@ func (u *usecase) Login(user entity.Login) *responses.UserRespon {
 	input.Password = user.Password
 
 	newuser, err := u.repository.GetByEmail(input.Email)
-	err = bcrypt.CompareHashAndPassword([]byte(newuser.Password), []byte(input.Password))
-	if err != nil {
+	check := bcrypt.CompareHashAndPassword([]byte(newuser.Password), []byte(input.Password))
+	if err != check {
 		resp := responses.UserRespon{}
 		return &resp
 	} else {
@@ -110,6 +111,7 @@ func (u *usecase) Login(user entity.Login) *responses.UserRespon {
 		resp.Name = newuser.Name
 		resp.Age = newuser.Age
 		resp.Nasabah = newuser.Nasabah
+		resp.Email = newuser.Email
 		return &resp
 	}
 }

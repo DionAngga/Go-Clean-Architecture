@@ -35,8 +35,24 @@ func NewController(usecase usecase.Usecase) Controller {
 func (u *controller) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var users []entity.User
-	u.usecase.FindAllUser(&users)
-	json.NewEncoder(w).Encode(users)
+	Users, err := u.usecase.FindAllUser(&users)
+	if err != nil {
+		resp := responses.Response{Status: http.StatusNotFound, Message: "Email atau password salah", Result: map[string]interface{}{"data": nil}}
+		json.NewEncoder(w).Encode(resp)
+	}
+	var newuser []responses.UserRespon
+	for _, user := range *Users {
+		resps := responses.UserRespon{
+			Model:   user.Model,
+			Nasabah: user.Nasabah,
+			Age:     user.Age,
+			Name:    user.Name,
+			Email:   user.Email,
+		}
+		newuser = append(newuser, resps)
+	}
+	resp := responses.Response{Status: http.StatusOK, Message: "Data User Ditemukan", Result: map[string]interface{}{"data": newuser}}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func (u *controller) GetUser(w http.ResponseWriter, r *http.Request) {

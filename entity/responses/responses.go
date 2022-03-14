@@ -13,4 +13,5 @@ type UserRespon struct {
 	Name    string `json:"name"`
 	Age     int    `json:"age"`
 	Nasabah string `json:"nasabah"`
+	Email   string `json:"email"`
 }
