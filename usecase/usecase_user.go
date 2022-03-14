@@ -10,7 +10,7 @@ import (
 )
 
 type Usecase interface {
-	CreateUser(user *entity.User) *entity.User
+	CreateUser(user *entity.User) (*entity.User, error)
 	Login(user entity.Login) *responses.UserRespon
 	FindUser(user *entity.User, id string) (*entity.User, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
@@ -27,7 +27,8 @@ func NewUsecase(repository repository.Repository) *usecase {
 	return &usecase{repository}
 }
 
-func (u *usecase) CreateUser(user *entity.User) *entity.User {
+func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
+
 	NewUser := user
 	NewUser.Name = user.Name
 	NewUser.Age = user.Age
@@ -36,10 +37,11 @@ func (u *usecase) CreateUser(user *entity.User) *entity.User {
 	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	fmt.Println(string(HashPassword))
 	NewUser.Password = string(HashPassword)
-
-	u.repository.Create(NewUser)
-
-	return NewUser
+	User, err := u.repository.Create(NewUser)
+	if err != nil {
+		return nil, err
+	}
+	return User, nil
 }
 
 func (u *usecase) FindUser(user *entity.User, id string) (*entity.User, error) {
