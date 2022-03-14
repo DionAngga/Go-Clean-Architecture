@@ -11,10 +11,10 @@ import (
 
 type Usecase interface {
 	CreateUser(user *entity.User) (*entity.User, error)
-	Login(user entity.Login) *responses.UserRespon
+	Login(user entity.Login) (*responses.UserRespon, error)
 	FindUser(user *entity.User, id string) (*entity.User, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
-	FindUserByEmail(user *entity.Login) *responses.UserRespon
+	FindUserByEmail(user *entity.Login) (*responses.UserRespon, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(user *entity.User, id string) (*entity.User, error)
 }
@@ -28,7 +28,6 @@ func NewUsecase(repository repository.Repository) *usecase {
 }
 
 func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
-
 	NewUser := user
 	NewUser.Name = user.Name
 	NewUser.Age = user.Age
@@ -76,11 +75,11 @@ func (u *usecase) DeleteUser(user *entity.User, id string) (*entity.User, error)
 	return User, nil
 }
 
-func (u *usecase) FindUserByEmail(user *entity.Login) *responses.UserRespon {
+func (u *usecase) FindUserByEmail(user *entity.Login) (*responses.UserRespon, error) {
 	email := user.Email
 	User, err := u.repository.GetByEmail(email)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	resp := responses.UserRespon{}
 	resp.ID = User.ID
@@ -91,10 +90,10 @@ func (u *usecase) FindUserByEmail(user *entity.Login) *responses.UserRespon {
 	resp.Age = User.Age
 	resp.Nasabah = User.Nasabah
 	resp.Email = User.Email
-	return &resp
+	return &resp, nil
 }
 
-func (u *usecase) Login(user entity.Login) *responses.UserRespon {
+func (u *usecase) Login(user entity.Login) (*responses.UserRespon, error) {
 	input := user
 	input.Email = user.Email
 	input.Password = user.Password
@@ -103,7 +102,7 @@ func (u *usecase) Login(user entity.Login) *responses.UserRespon {
 	check := bcrypt.CompareHashAndPassword([]byte(newuser.Password), []byte(input.Password))
 	if err != check {
 		resp := responses.UserRespon{}
-		return &resp
+		return &resp, err
 	} else {
 		resp := responses.UserRespon{}
 		resp.ID = newuser.ID
@@ -114,6 +113,6 @@ func (u *usecase) Login(user entity.Login) *responses.UserRespon {
 		resp.Age = newuser.Age
 		resp.Nasabah = newuser.Nasabah
 		resp.Email = newuser.Email
-		return &resp
+		return &resp, nil
 	}
 }
