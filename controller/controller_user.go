@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"crud/auth"
 	entity "crud/entity/requests"
 	"crud/entity/responses"
 	"crud/usecase"
@@ -22,14 +23,15 @@ type Controller interface {
 
 type controller struct {
 	usecase usecase.Usecase
+	auth    auth.Service
 }
 
 type ErrResponse struct {
 	Message string
 }
 
-func NewController(usecase usecase.Usecase) Controller {
-	return &controller{usecase}
+func NewController(usecase usecase.Usecase, auth auth.Service) Controller {
+	return &controller{usecase, auth}
 }
 
 func (u *controller) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -121,12 +123,23 @@ func (u *controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user entity.User
+	User, error := u.usecase.FindUser(&user, params["id"])
+	var newuser responses.UserRespon
+	newuser.Model = User.Model
+	newuser.Nasabah = User.Nasabah
+	newuser.Age = User.Age
+	newuser.Name = User.Name
+	newuser.Email = User.Email
+	if error != nil {
+		respon := responses.Response{Status: http.StatusNotFound, Message: "Data user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
+		json.NewEncoder(w).Encode(respon)
+	}
 	_, err := u.usecase.DeleteUser(&user, params["id"])
 	if err != nil {
 		respon := responses.Response{Status: http.StatusBadRequest, Message: "Terjadi kesalahan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)
 	} else {
-		respon := responses.Response{Status: http.StatusOK, Message: "Data user telah di Hapus"}
+		respon := responses.Response{Status: http.StatusOK, Message: "Data user telah di Hapus", Result: map[string]interface{}{"data": newuser}}
 		json.NewEncoder(w).Encode(respon)
 	}
 }
@@ -144,6 +157,12 @@ func (u *controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 		resp := responses.Response{Status: http.StatusNotFound, Message: "Email atau password salah", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(resp)
 	} else {
+		tokenUser, err := u.auth.GenerateToken(respon.ID, respon.Email)
+		if err != nil {
+			resp := responses.Response{Status: http.StatusBadRequest, Message: "Token tidak muncul", Result: map[string]interface{}{"data": nil}}
+			json.NewEncoder(w).Encode(resp)
+		}
+		respon.Token = tokenUser
 		resp := responses.Response{Status: http.StatusOK, Message: "Data User Ditemukan", Result: map[string]interface{}{"data": respon}}
 		json.NewEncoder(w).Encode(resp)
 	}
