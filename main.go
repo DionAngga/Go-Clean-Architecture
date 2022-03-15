@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"crud/auth"
 	"crud/controller"
 	entity "crud/entity/requests"
 	"crud/repository"
@@ -32,8 +33,9 @@ func initializeRouter() {
 	userRepository := repository.NewRepository(db)
 
 	userUsecase := usecase.NewUsecase(userRepository)
+	userAuth := auth.NewService()
 	// userHandler := handler.NewUserHandler(userUseCase)
-	userController := controller.NewController(userUsecase)
+	userController := controller.NewController(userUsecase, userAuth)
 
 	r.HandleFunc("/users", userController.GetUsers).Methods("GET")
 	r.HandleFunc("/user/{id}", userController.GetUser).Methods("GET")
