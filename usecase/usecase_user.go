@@ -11,7 +11,7 @@ import (
 
 type Usecase interface {
 	CreateUser(user *entity.User) (*entity.User, error)
-	Login(user entity.Login) (*responses.UserRespon, error)
+	Login(user entity.Login) (*responses.UserLogin, error)
 	FindUser(user *entity.User, id string) (*entity.User, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
 	FindUserByEmail(user *entity.Login) (*responses.UserRespon, error)
@@ -93,7 +93,7 @@ func (u *usecase) FindUserByEmail(user *entity.Login) (*responses.UserRespon, er
 	return &resp, nil
 }
 
-func (u *usecase) Login(user entity.Login) (*responses.UserRespon, error) {
+func (u *usecase) Login(user entity.Login) (*responses.UserLogin, error) {
 	input := user
 	input.Email = user.Email
 	input.Password = user.Password
@@ -101,10 +101,10 @@ func (u *usecase) Login(user entity.Login) (*responses.UserRespon, error) {
 	newuser, err := u.repository.GetByEmail(input.Email)
 	check := bcrypt.CompareHashAndPassword([]byte(newuser.Password), []byte(input.Password))
 	if err != check {
-		resp := responses.UserRespon{}
+		resp := responses.UserLogin{}
 		return &resp, err
 	} else {
-		resp := responses.UserRespon{}
+		resp := responses.UserLogin{}
 		resp.ID = newuser.ID
 		resp.CreatedAt = newuser.CreatedAt
 		resp.UpdatedAt = newuser.UpdatedAt
@@ -113,6 +113,7 @@ func (u *usecase) Login(user entity.Login) (*responses.UserRespon, error) {
 		resp.Age = newuser.Age
 		resp.Nasabah = newuser.Nasabah
 		resp.Email = newuser.Email
+		//resp.Token = newuser.Token
 		return &resp, nil
 	}
 }
