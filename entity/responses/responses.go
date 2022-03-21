@@ -8,11 +8,19 @@ type Response struct {
 	Result  map[string]interface{} `json:"result"`
 }
 
-type UserRespon struct {
+type UserLogin struct {
 	gorm.Model
 	Name    string `json:"name"`
 	Age     int    `json:"age"`
 	Nasabah string `json:"nasabah"`
 	Email   string `json:"email"`
 	Token   string `json:"token"`
+}
+
+type UserRespon struct {
+	gorm.Model
+	Name    string `json:"name"`
+	Age     int    `json:"age"`
+	Nasabah string `json:"nasabah"`
+	Email   string `json:"email"`
 }
