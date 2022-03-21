@@ -22,7 +22,7 @@ const port string = ":9001"
 func initializeRouter() {
 	r := mux.NewRouter()
 
-	DNS := "root:@tcp(localhost:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
+	DNS := auth.DNS()
 	db, err := gorm.Open(mysql.Open(DNS), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
