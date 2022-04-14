@@ -34,7 +34,6 @@ func initializeRouter() {
 
 	userUsecase := usecase.NewUsecase(userRepository)
 	userAuth := auth.NewService()
-	// userHandler := handler.NewUserHandler(userUseCase)
 	userController := controller.NewController(userUsecase, userAuth)
 
 	r.HandleFunc("/users", userController.GetUsers).Methods("GET")
