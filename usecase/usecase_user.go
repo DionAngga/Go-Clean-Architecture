@@ -12,7 +12,7 @@ import (
 type Usecase interface {
 	CreateUser(user *entity.User) (*entity.User, error)
 	Login(user entity.Login) (*responses.UserLogin, error)
-	FindUser(user *entity.User, id string) (*entity.User, error)
+	FindUser(id string) (*entity.User, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
 	FindUserByEmail(user *entity.Login) (*responses.UserRespon, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
@@ -43,8 +43,8 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 	return User, nil
 }
 
-func (u *usecase) FindUser(user *entity.User, id string) (*entity.User, error) {
-	User, err := u.repository.GetId(user, id)
+func (u *usecase) FindUser(id string) (*entity.User, error) {
+	User, err := u.repository.GetId(id)
 	if err != nil {
 		return nil, err
 	}

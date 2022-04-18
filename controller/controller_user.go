@@ -60,8 +60,8 @@ func (u *controller) GetUsers(w http.ResponseWriter, r *http.Request) {
 func (u *controller) GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var user entity.User
-	User, err := u.usecase.FindUser(&user, params["id"])
+
+	User, err := u.usecase.FindUser(params["id"])
 	if err != nil {
 		respon := responses.Response{Status: http.StatusNotFound, Message: "Data user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)
@@ -101,7 +101,7 @@ func (u *controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user entity.User
-	u.usecase.FindUser(&user, params["id"])
+	u.usecase.FindUser(params["id"])
 	json.NewDecoder(r.Body).Decode(&user)
 	User, err := u.usecase.UpdateUser(&user)
 	if err != nil {
@@ -123,7 +123,7 @@ func (u *controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user entity.User
-	User, error := u.usecase.FindUser(&user, params["id"])
+	User, error := u.usecase.FindUser(params["id"])
 	var newuser responses.UserRespon
 	newuser.Model = User.Model
 	newuser.Nasabah = User.Nasabah
