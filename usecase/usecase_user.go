@@ -4,7 +4,6 @@ import (
 	entity "crud/entity/requests"
 	"crud/entity/responses"
 	"crud/repository"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,7 +33,6 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 	NewUser.Nasabah = user.Nasabah
 	NewUser.Email = user.Email
 	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	fmt.Println(string(HashPassword))
 	NewUser.Password = string(HashPassword)
 	User, err := u.repository.Create(NewUser)
 	if err != nil {
@@ -60,6 +58,8 @@ func (u *usecase) FindAllUser(user *[]entity.User) (*[]entity.User, error) {
 }
 
 func (u *usecase) UpdateUser(user *entity.User) (*entity.User, error) {
+	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	user.Password = string(HashPassword)
 	User, err := u.repository.Update(user)
 	if err != nil {
 		return nil, err

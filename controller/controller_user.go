@@ -102,10 +102,9 @@ func (u *controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (u *controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var user entity.User
-	u.usecase.FindUser(params["id"])
+	user, err := u.usecase.FindUser(params["id"])
 	json.NewDecoder(r.Body).Decode(&user)
-	User, err := u.usecase.UpdateUser(&user)
+	User, err := u.usecase.UpdateUser(user)
 	if err != nil {
 		respon := responses.Response{Status: http.StatusBadRequest, Message: "Terjadi kesalahan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)
