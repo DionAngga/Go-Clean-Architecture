@@ -67,7 +67,7 @@ func (u *controller) GetUser(w http.ResponseWriter, r *http.Request) {
 		respon := responses.Response{Status: http.StatusNotFound, Message: "Data user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)
 	} else {
-		var newuser *responses.UserRespon
+		var newuser = &responses.UserRespon{}
 		newuser.Model = User.Model
 		newuser.Nasabah = User.Nasabah
 		newuser.Age = User.Age

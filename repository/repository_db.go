@@ -34,8 +34,8 @@ func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 }
 
 func (db *repository) GetId(id string) (*entity.User, error) {
-	var user *entity.User
-	err := db.DB.Where("id = ?").Find(&user).Error
+	var user = &entity.User{}
+	err := db.DB.Where("id = ?", id).Find(user).Error
 	if err != nil {
 		return nil, err
 	}
