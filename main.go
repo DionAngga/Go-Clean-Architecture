@@ -11,8 +11,8 @@ import (
 	"crud/usecase"
 	"fmt"
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ func initializeRouter() {
 	r := mux.NewRouter()
 
 	DNS := auth.DNS()
-	db, err := gorm.Open(mysql.Open(DNS), &gorm.Config{})
+	db, err := gorm.Open("mysql", DNS)
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("cannot connect to DB")

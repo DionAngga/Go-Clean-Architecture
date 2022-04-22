@@ -3,7 +3,7 @@ package repository
 import (
 	entity "crud/entity/requests"
 
-	"gorm.io/gorm"
+	"github.com/jinzhu/gorm"
 )
 
 type Repository interface {
@@ -35,7 +35,7 @@ func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 
 func (db *repository) GetId(id string) (*entity.User, error) {
 	var user *entity.User
-	err := db.DB.Find(user, id).Error
+	err := db.DB.Where("id = ?").Find(&user).Error
 	if err != nil {
 		return nil, err
 	}
