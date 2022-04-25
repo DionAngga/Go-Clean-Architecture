@@ -6,7 +6,6 @@ import (
 	"crud/entity/responses"
 	"crud/usecase"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -17,7 +16,6 @@ type Controller interface {
 	LoginUser(w http.ResponseWriter, r *http.Request)
 	GetUsers(w http.ResponseWriter, r *http.Request)
 	GetUser(w http.ResponseWriter, r *http.Request)
-	GetUserx(w http.ResponseWriter, r *http.Request)
 	GetEmailUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
@@ -65,39 +63,16 @@ func (u *controller) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	User, err := u.usecase.FindUser(params["id"])
 	if err != nil {
-		fmt.Println("+++++++++++++ error ++++++++++++++")
 		respon := responses.Response{Status: http.StatusNotFound, Message: "Data user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)
 	} else {
-		var newuser = &responses.UserRespon{}
+		var newuser responses.UserRespon
 		newuser.Model = User.Model
 		newuser.Nasabah = User.Nasabah
 		newuser.Age = User.Age
 		newuser.Name = User.Name
 		newuser.Email = User.Email
 		respon := responses.Response{Status: http.StatusFound, Message: "Data user ditemukan", Result: map[string]interface{}{"data": newuser}}
-		fmt.Println("+++++++++++++ success ++++++++++++++")
-		json.NewEncoder(w).Encode(respon)
-	}
-}
-
-func (u *controller) GetUserx(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-
-	User, err := u.usecase.FindUserx(params["id"])
-	if err != nil {
-		fmt.Println("+++++++++++++ error ++++++++++++++")
-		respon := responses.Response{Status: http.StatusNotFound, Message: "Data user tidak ditemukan", Result: map[string]interface{}{"data": nil}}
-		json.NewEncoder(w).Encode(respon)
-	} else {
-		var newuser = &responses.UserRespon{}
-		newuser.Nasabah = User.Nasabah
-		newuser.Age = User.Age
-		newuser.Name = User.Name
-		newuser.Email = User.Email
-		respon := responses.Response{Status: http.StatusFound, Message: "Data user ditemukan", Result: map[string]interface{}{"data": newuser}}
-		fmt.Println("+++++++++++++ success ++++++++++++++")
 		json.NewEncoder(w).Encode(respon)
 	}
 }
@@ -125,9 +100,10 @@ func (u *controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (u *controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	user, _ := u.usecase.FindUser(params["id"])
+	var user entity.User
+	u.usecase.FindUser(params["id"])
 	json.NewDecoder(r.Body).Decode(&user)
-	User, err := u.usecase.UpdateUser(user)
+	User, err := u.usecase.UpdateUser(&user)
 	if err != nil {
 		respon := responses.Response{Status: http.StatusBadRequest, Message: "Terjadi kesalahan", Result: map[string]interface{}{"data": nil}}
 		json.NewEncoder(w).Encode(respon)

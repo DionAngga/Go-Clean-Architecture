@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -33,8 +33,4 @@ type Userx struct {
 	Nasabah  string `json:"nasabah"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-func (p *Userx) TableName() string {
-	return "users"
 }

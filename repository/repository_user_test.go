@@ -3,15 +3,17 @@ package repository
 import (
 	entity "crud/entity/requests"
 	"database/sql"
+	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
-	"time"
 
 	"github.com/go-test/deep"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Suite struct {
@@ -25,34 +27,17 @@ type Suite struct {
 	Person     *entity.Userx
 }
 
-var u = &entity.User{
-	Model: gorm.Model{
-		ID:        1,
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
-		DeletedAt: nil,
-	},
-	Name:     "Dion",
-	Age:      30,
-	Nasabah:  "Simpedes",
-	Email:    "Dion@gg.com",
-	Password: "sssss",
-}
-
-var a = &entity.Userx{
-	Id:       1,
-	Name:     "Dion",
-	Age:      30,
-	Nasabah:  "Simpedes",
-	Email:    "Dion@gg.com",
-	Password: "sssss",
-}
-
 func (s *Suite) SetupSuite() {
 	s.db, s.mock, s.err = sqlmock.New()
 	require.NoError(s.T(), s.err)
-	s.DB, s.err = gorm.Open("postgres", s.db)
-	//require.NoError(s.T(), s.err)
+	dialector := mysql.New(mysql.Config{
+		Conn:                      s.db,
+		SkipInitializeWithVersion: true,
+	})
+	s.DB, s.err = gorm.Open(dialector, &gorm.Config{})
+	fmt.Println("database ========", s.db)
+	fmt.Println("s.Database ========", s.DB)
+	require.NoError(s.T(), s.err)
 
 	//s.DB.LogMode(true)
 
@@ -68,24 +53,24 @@ func TestInit(t *testing.T) {
 }
 
 func (s *Suite) Test_repository_Get() {
-	s.mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."deleted_at" IS NULL AND ((id = $1))`)).
-		WithArgs(u.Model.ID).
-		WillReturnRows(sqlmock.NewRows([]string{"name", "age", "nasabah", "email"}).
-			AddRow(u.Name, u.Age, u.Nasabah, u.Email))
-	result, err := s.repository.GetId(int(u.Model.ID))
-	require.NoError(s.T(), err)
-	require.Nil(s.T(), deep.Equal(&entity.User{Name: u.Name, Age: u.Age, Nasabah: u.Nasabah, Email: u.Email}, result))
-	require.NotNil(s.T(), result)
-}
-
-func (s *Suite) Test_repository_Getx() {
+	var (
+		id      = 1
+		name    = "test-name"
+		age     = 20
+		nasabah = "simpedes"
+		email   = "testname@gg.com"
+	)
+	idstr := strconv.Itoa(id)
 	s.mock.ExpectQuery(regexp.QuoteMeta(
-		`SELECT * FROM "users" WHERE (id = $1)`)).
-		WithArgs(a.Id).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "age", "nasabah", "email"}).
-			AddRow(a.Id, a.Name, a.Age, a.Nasabah, a.Email))
+		`SELECT * FROM "u" WHERE (id = $1)`)).
+		WithArgs(idstr).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(idstr, name, age, nasabah, email))
 
-	res, _ := s.repository.GetIdx(a.Id)
-	//require.NoError(s.T(), err)
-	require.NotNil(s.T(), *res)
+	res, err := s.repository.GetId(idstr)
+	fmt.Println("ssssssssssssssssssssssss===========", s.T())
+	fmt.Println("ressssssssssssssssssdccs===========", res)
+	fmt.Println("----------MODEL----===========", &entity.Userx{Id: id, Name: name, Age: age, Nasabah: nasabah, Email: email})
+	require.NoError(s.T(), err)
+	require.Nil(s.T(), deep.Equal(&entity.Userx{Id: id, Name: name, Age: age, Nasabah: nasabah, Email: email}, res))
 }

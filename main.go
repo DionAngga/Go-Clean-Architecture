@@ -11,8 +11,8 @@ import (
 	"crud/usecase"
 	"fmt"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ func initializeRouter() {
 	r := mux.NewRouter()
 
 	DNS := auth.DNS()
-	db, err := gorm.Open("mysql", DNS)
+	db, err := gorm.Open(mysql.Open(DNS), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("cannot connect to DB")
@@ -38,7 +38,6 @@ func initializeRouter() {
 
 	r.HandleFunc("/users", userController.GetUsers).Methods("GET")
 	r.HandleFunc("/user/{id}", userController.GetUser).Methods("GET")
-	r.HandleFunc("/userx/{id}", userController.GetUserx).Methods("GET")
 	r.HandleFunc("/user", userController.CreateUser).Methods("POST")
 	r.HandleFunc("/userEmail", userController.GetEmailUser).Methods("POST")
 	r.HandleFunc("/userlogin", userController.LoginUser).Methods("POST")

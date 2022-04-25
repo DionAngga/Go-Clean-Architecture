@@ -3,13 +3,12 @@ package repository
 import (
 	entity "crud/entity/requests"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
 	Get(user *[]entity.User) (*[]entity.User, error)
-	GetId(id int) (*entity.User, error)
-	GetIdx(id int) (*entity.Userx, error)
+	GetId(id string) (*entity.User, error)
 	Create(user *entity.User) (*entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
 	Delete(user *entity.User, id string) (*entity.User, error)
@@ -34,18 +33,9 @@ func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 	return user, nil
 }
 
-func (db *repository) GetId(id int) (*entity.User, error) {
-	var user = &entity.User{}
-	err := db.DB.Where("id = ?", id).Find(user).Error
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-func (db *repository) GetIdx(id int) (*entity.Userx, error) {
-	var user = &entity.Userx{}
-	err := db.DB.Where("id = ?", id).Find(user).Error
+func (db *repository) GetId(id string) (*entity.User, error) {
+	var user *entity.User
+	err := db.DB.Find(user, id).Error
 	if err != nil {
 		return nil, err
 	}

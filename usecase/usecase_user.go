@@ -4,7 +4,7 @@ import (
 	entity "crud/entity/requests"
 	"crud/entity/responses"
 	"crud/repository"
-	"strconv"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,7 +13,6 @@ type Usecase interface {
 	CreateUser(user *entity.User) (*entity.User, error)
 	Login(user entity.Login) (*responses.UserLogin, error)
 	FindUser(id string) (*entity.User, error)
-	FindUserx(id string) (*entity.Userx, error)
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
 	FindUserByEmail(user *entity.Login) (*responses.UserRespon, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
@@ -35,6 +34,7 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 	NewUser.Nasabah = user.Nasabah
 	NewUser.Email = user.Email
 	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	fmt.Println(string(HashPassword))
 	NewUser.Password = string(HashPassword)
 	User, err := u.repository.Create(NewUser)
 	if err != nil {
@@ -44,23 +44,7 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 }
 
 func (u *usecase) FindUser(id string) (*entity.User, error) {
-	ids, errs := strconv.Atoi(id)
-	if errs != nil {
-		return nil, errs
-	}
-	User, err := u.repository.GetId(ids)
-	if err != nil {
-		return nil, err
-	}
-	return User, nil
-}
-
-func (u *usecase) FindUserx(id string) (*entity.Userx, error) {
-	ids, errs := strconv.Atoi(id)
-	if errs != nil {
-		return nil, errs
-	}
-	User, err := u.repository.GetIdx(ids)
+	User, err := u.repository.GetId(id)
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +60,6 @@ func (u *usecase) FindAllUser(user *[]entity.User) (*[]entity.User, error) {
 }
 
 func (u *usecase) UpdateUser(user *entity.User) (*entity.User, error) {
-	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.Password = string(HashPassword)
 	User, err := u.repository.Update(user)
 	if err != nil {
 		return nil, err
@@ -103,6 +85,7 @@ func (u *usecase) FindUserByEmail(user *entity.Login) (*responses.UserRespon, er
 	resp.ID = User.ID
 	resp.CreatedAt = User.CreatedAt
 	resp.UpdatedAt = User.UpdatedAt
+	resp.DeletedAt = User.DeletedAt
 	resp.Name = User.Name
 	resp.Age = User.Age
 	resp.Nasabah = User.Nasabah
@@ -125,6 +108,7 @@ func (u *usecase) Login(user entity.Login) (*responses.UserLogin, error) {
 		resp.ID = newuser.ID
 		resp.CreatedAt = newuser.CreatedAt
 		resp.UpdatedAt = newuser.UpdatedAt
+		resp.DeletedAt = newuser.DeletedAt
 		resp.Name = newuser.Name
 		resp.Age = newuser.Age
 		resp.Nasabah = newuser.Nasabah
