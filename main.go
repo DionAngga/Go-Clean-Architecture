@@ -38,6 +38,7 @@ func initializeRouter() {
 
 	r.HandleFunc("/users", userController.GetUsers).Methods("GET")
 	r.HandleFunc("/user/{id}", userController.GetUser).Methods("GET")
+	r.HandleFunc("/userx/{id}", userController.GetUserx).Methods("GET")
 	r.HandleFunc("/user", userController.CreateUser).Methods("POST")
 	r.HandleFunc("/userEmail", userController.GetEmailUser).Methods("POST")
 	r.HandleFunc("/userlogin", userController.LoginUser).Methods("POST")
