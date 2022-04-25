@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"gorm.io/gorm"
+	"github.com/jinzhu/gorm"
 )
 
 type User struct {
@@ -27,7 +27,7 @@ type Login struct {
 }
 
 type Userx struct {
-	Id       string `json:"id"`
+	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Age      int    `json:"age"`
 	Nasabah  string `json:"nasabah"`
@@ -36,5 +36,5 @@ type Userx struct {
 }
 
 func (p *Userx) TableName() string {
-	return "u"
+	return "users"
 }

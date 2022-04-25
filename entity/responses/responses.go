@@ -1,6 +1,6 @@
 package responses
 
-import "gorm.io/gorm"
+import "github.com/jinzhu/gorm"
 
 type Response struct {
 	Status  int                    `json:"status"`
