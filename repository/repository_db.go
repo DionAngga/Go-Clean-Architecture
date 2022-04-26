@@ -11,7 +11,7 @@ type Repository interface {
 	GetId(id string) (*entity.User, error)
 	Create(user *entity.User) (*entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
-	Delete(user *entity.User, id string) (*entity.User, error)
+	Delete(id string) (*entity.User, error)
 	GetByEmail(email string) (*entity.User, error)
 }
 
@@ -35,7 +35,7 @@ func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 
 func (db *repository) GetId(id string) (*entity.User, error) {
 	var user *entity.User
-	err := db.DB.Find(user, id).Error
+	err := db.DB.Find(&user, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +58,13 @@ func (db *repository) Update(user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func (db *repository) Delete(user *entity.User, id string) (*entity.User, error) {
-	err := db.DB.Delete(user, id).Error
+func (db *repository) Delete(id string) (*entity.User, error) {
+	var user = entity.User{}
+	err := db.DB.Delete(&user, id).Error
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (db *repository) GetByEmail(email string) (*entity.User, error) {

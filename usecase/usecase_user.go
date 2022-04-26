@@ -4,7 +4,6 @@ import (
 	entity "crud/entity/requests"
 	"crud/entity/responses"
 	"crud/repository"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,7 +15,7 @@ type Usecase interface {
 	FindAllUser(user *[]entity.User) (*[]entity.User, error)
 	FindUserByEmail(user *entity.Login) (*responses.UserRespon, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
-	DeleteUser(user *entity.User, id string) (*entity.User, error)
+	DeleteUser(id string) (*entity.User, error)
 }
 
 type usecase struct {
@@ -34,7 +33,6 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 	NewUser.Nasabah = user.Nasabah
 	NewUser.Email = user.Email
 	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	fmt.Println(string(HashPassword))
 	NewUser.Password = string(HashPassword)
 	User, err := u.repository.Create(NewUser)
 	if err != nil {
@@ -60,6 +58,8 @@ func (u *usecase) FindAllUser(user *[]entity.User) (*[]entity.User, error) {
 }
 
 func (u *usecase) UpdateUser(user *entity.User) (*entity.User, error) {
+	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	user.Password = string(HashPassword)
 	User, err := u.repository.Update(user)
 	if err != nil {
 		return nil, err
@@ -67,8 +67,8 @@ func (u *usecase) UpdateUser(user *entity.User) (*entity.User, error) {
 	return User, nil
 }
 
-func (u *usecase) DeleteUser(user *entity.User, id string) (*entity.User, error) {
-	User, err := u.repository.Delete(user, id)
+func (u *usecase) DeleteUser(id string) (*entity.User, error) {
+	User, err := u.repository.Delete(id)
 	if err != nil {
 		return nil, err
 	}
