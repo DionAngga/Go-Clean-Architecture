@@ -4,6 +4,7 @@ import (
 	entity "crud/entity/requests"
 	"crud/entity/responses"
 	"crud/repository"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -42,7 +43,11 @@ func (u *usecase) CreateUser(user *entity.User) (*entity.User, error) {
 }
 
 func (u *usecase) FindUser(id string) (*entity.User, error) {
-	User, err := u.repository.GetId(id)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+	User, err := u.repository.GetId(ids)
 	if err != nil {
 		return nil, err
 	}

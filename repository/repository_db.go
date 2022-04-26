@@ -8,7 +8,8 @@ import (
 
 type Repository interface {
 	Get(user *[]entity.User) (*[]entity.User, error)
-	GetId(id string) (*entity.User, error)
+	GetId(id int) (*entity.User, error)
+	Createx(user *entity.Userx) (*entity.Userx, error)
 	Create(user *entity.User) (*entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
 	Delete(id string) (*entity.User, error)
@@ -23,7 +24,7 @@ func NewRepository(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-const DNS = "root:@tcp(localhost:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
+//const DNS = "root:@tcp(localhost:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
 
 func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 	err := db.DB.Find(&user).Error
@@ -33,9 +34,17 @@ func (db *repository) Get(user *[]entity.User) (*[]entity.User, error) {
 	return user, nil
 }
 
-func (db *repository) GetId(id string) (*entity.User, error) {
+func (db *repository) GetId(id int) (*entity.User, error) {
 	var user *entity.User
 	err := db.DB.Find(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (db *repository) Createx(user *entity.Userx) (*entity.Userx, error) {
+	err := db.DB.Create(user).Error
 	if err != nil {
 		return nil, err
 	}
